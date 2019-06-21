@@ -17,6 +17,7 @@
 # include <stdlib.h>
 # include <string.h>
 # include <stdarg.h>
+# include <float.h>
 
 /*
 ** Common static value or character checking

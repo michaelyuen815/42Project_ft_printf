@@ -5,25 +5,23 @@
 #                                                     +:+ +:+         +:+      #
 #    By: chyuen <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2019/05/22 19:31:51 by chyuen            #+#    #+#              #
-#    Updated: 2019/05/22 19:32:10 by chyuen           ###   ########.fr        #
+#    Created: 2019/05/22 11:15:51 by chyuen            #+#    #+#              #
+#    Updated: 2019/05/22 13:28:06 by chyuen           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = a.out
+NAME = libftprintf.a
 
-DIRHEAD = ft_printf/includes
+DIRHDER = ./includes/
+DIRLIB = ./libft/
+DIRSRC = ./srcs/
 
 all: $(NAME)
 
 $(NAME):
-	gcc main.c ft_printf/srcs/*.c -I $(DIRHEAD) -L ft_printf -lftprintf -Wall -Wextra
-	./$(NAME)
+	gcc -c $(DIRLIB)*.c $(DIRSRC)*.c -I $(DIRHDER) -Wall -Wextra -Werror
+	ar rcs $(NAME) *.o
 
-c: fclean
-	gcc test/test_c.c ft_printf/srcs/*.c -I $(DIRHEAD) -L ft_printf -lftprintf -Wall -Wextra
-	./$(NAME)
-	
 clean:
 	/bin/rm -f *.o
 
