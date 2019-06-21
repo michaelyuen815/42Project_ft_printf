@@ -13,6 +13,25 @@
 #include "libft.h"
 #include "ft_printf.h"
 
+/*
+** int printf ( const char * format, ... );
+** prototype: %[flags][width][.precision][length]specifier
+** flags option: #0-+ and space
+** width parameter
+** specifier % (print %)
+** specifier c(char), s(string), p(ptr)
+** specifier d, i(int), o(oct), u(unsigned int),
+** 		xX (hex) with length option hh, h, l , ll
+** specifier f with length option l, L
+** bonus specifier e, g
+** bonus flags: *
+** bonus specifier b(binary)
+*/
+
+/*
+** function of free struct var when it's not necessary
+*/
+
 void	ft_pfmain_var_del(t_var **var)
 {
 	if (!*var)
@@ -23,6 +42,21 @@ void	ft_pfmain_var_del(t_var **var)
 	free(*var);
 	*var = NULL;
 }
+
+/*
+** function of organizing parameters into struct var
+** step 1: if var is not setup, preserve memory for related items
+** step 2: setup flag by function "ft_pfflag_init"
+** step 3: setup width(i_width) by function "ft_pfwidpre_init"
+** step 4: setup precision (i_prec) by fcuntion  "ft_pfwidpre_init"
+**			if '.' does not exist, set i_prec as -1 (defaulted)
+** step 5: setup length (len) by function "ft_pflen_init"
+** step 6: setup speicifer (c_spec) by taking next char
+**			take NULL if next char is not under SPEC
+** step 7: adjust parameters by function "ft_pflen_ctrl"
+** step 8: store variable to be converted from arguments by
+**			function "ft_pfvar_init"
+*/
 
 t_var	*ft_pfmain_var_init(t_var **var, const char **str, va_list lst_arg)
 {
@@ -47,6 +81,23 @@ t_var	*ft_pfmain_var_init(t_var **var, const char **str, va_list lst_arg)
 	return (*var);
 }
 
+/*
+** function of handle varible format string in ft_printf
+** step 1: organzie parameters into struct var (ft_pfmain_var_init)
+** step 2: create output string and count (ret) length consisting
+**			flag, width and precision (ft_pfvar_cal)
+** step 3: copy the converted string into print
+**			a. if '-' flag is on, run 1. flag 2. prec 3. width
+**			b. if '0' flag is on, run 1. flag 2. width 3. prec
+**			c. otherwise, run 1. width 2. flag, 3. prec
+**			where:
+**				flag function >> ft_pfflag_process
+**				prec function >> ft_pfwidpre_preprocess
+**				width function >> ft_pfwidpre_widprocess
+** step 4: free var if there is no variable format string left
+** step 5: return ret
+*/
+
 int		ft_pfmain_var(char *print, const char **str, va_list lst_arg)
 {
 	static t_var	*var;
@@ -68,6 +119,15 @@ int		ft_pfmain_var(char *print, const char **str, va_list lst_arg)
 	return (ret);
 }
 
+/*
+** function of handling non-variable format string in ft_printf
+** step 1: find ret >> the length of non-variable format string by
+**			checking next '%'
+** step 2: copy the content of non-variable format string into print
+** step 3: move pointer of str forward by ret(th) char
+** step 4: retrun ret
+*/
+
 int		ft_pfmain_str(char *print, const char **str)
 {
 	int		ret;
@@ -79,6 +139,17 @@ int		ft_pfmain_str(char *print, const char **str)
 	*str += ret;
 	return (ret);
 }
+
+/*
+** main function of ft_printf
+** step 1: setup arguments 1. str (print format) 2. lst_arg (variables)
+** step 2: call functions based on first char:
+**			a. run ft_pfmain_var if current first char is %
+**			b. run ft_pfmain_str if current first char is not %
+**		   return ret(no. of char to be printed) and print(char to be printed)
+** step 3: repeat step 2 until all format is handled
+** step 4: write ret(th) char for string print
+*/
 
 int		ft_printf(const char *arg, ...)
 {

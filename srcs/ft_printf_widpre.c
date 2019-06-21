@@ -13,6 +13,16 @@
 #include "libft.h"
 #include "ft_printf.h"
 
+/*
+** function of setup width/precision during organizing parameters
+** step 1: default value = -1.
+** step 2: read the number from format string until no number char is found
+** step 3: if there is char '*', read next argument as value of precision/width
+**			if value is -ve:
+**			a. turn on '-' flag and keep absolute value for width
+**			b. keep default value (-1) for precision
+*/
+
 int		ft_pfwidpre_init(\
 	t_var *var, const char **str, char bl_prec, va_list lst_arg)
 {
@@ -54,6 +64,15 @@ int		ft_pfwidpre_init(\
 **1. Width 2. Flag 3. prec
 */
 
+/*
+** function of counting length required for prec after converting var to str
+** a. if spec is 's' and prec is less than length of converted string
+**		(ret[LEN_SRC]), return difference between them (-ve)
+** b. if spec is 'd i u b o O x X' and precision is larger than
+**		ret[LEN_SRC] excluding sign '-',
+**		return difference between them (+ve)
+*/
+
 int		ft_pfwidpre_len(t_var *var)
 {
 	int	tmp;
@@ -74,6 +93,15 @@ int		ft_pfwidpre_len(t_var *var)
 	return (ret);
 }
 
+/*
+** function of filling width (" "/"0") into string print after counting len
+** a. fill ' ' for every width unit
+** b. fill '0' if '0' flag is on
+** then run other filling functio:
+**		a. ft_pfwidpre_preprocess
+**		b. ft_pfflag_process
+*/
+
 char	*ft_pfwidpre_widprocess(char *print, t_var *var)
 {
 	int i;
@@ -87,6 +115,16 @@ char	*ft_pfwidpre_widprocess(char *print, t_var *var)
 		ft_pfflag_process(print + i, var);
 	return (print);
 }
+
+/*
+** function of filling precision and converted string
+**		 into string print after counting len
+** step 1: fill the precision value
+** 		a. if spec is 'd i u b o O x X', fill '0'
+** 		b. if spec is 's', adjust the len of converted string (ret[LEN_SRC])
+** step 2: fill the converted string value
+** step 3: run function "ft_pfwidpre_widprocess" if necessary
+*/
 
 char	*ft_pfwidpre_preprocess(char *print, t_var *var)
 {

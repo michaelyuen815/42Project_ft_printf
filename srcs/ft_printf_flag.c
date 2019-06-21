@@ -13,6 +13,13 @@
 #include "libft.h"
 #include "ft_printf.h"
 
+/*
+** function of setup flag during organizing parameters
+** step 1: setup all flag with value = 0
+** step 2: change corresponding flag to 1 if current char matched
+** step 3: repeat step 2 until current char does matched with any flag
+*/
+
 t_flag	*ft_pfflag_init(t_var *var, const char **str)
 {
 	t_flag *ret;
@@ -37,6 +44,20 @@ t_flag	*ft_pfflag_init(t_var *var, const char **str)
 	return (ret);
 }
 
+/*
+** function of adjusting flag parameter before setuping variables
+** some flags are not concerned in some cases, therefore they would
+** 	be turned off in this function
+** for particalar specifers:
+** a. '+' is concerned when specifier are 'd i f e E g G'
+** b. ' ' is concerned when specifier are 'd i f e E g G'
+** c. '#' is concerned when specifier are 'o O x X f e E g G'
+** d. '0' is ignored when precision is 0 and specifier is not 'c' or 's'
+** between flags:
+** a. only '+' is concerned when '+' and ' ' exist
+** b. only '-' is concerned when '-' and '0' exist
+*/
+
 void	ft_pfflag_ctrl(t_var *var)
 {
 	if (!SPEC_SIGN(var->i_spec))
@@ -55,6 +76,18 @@ void	ft_pfflag_ctrl(t_var *var)
 	if (var->flag->minus && var->flag->zero)
 		var->flag->zero = 0;
 }
+
+/*
+** function of counting length required for flag after converting var to str
+** a. return 1 if '+' or ' ' flag is on and 1st char is number(+ve)
+** b. return 1 if '#' flag is on and spec is 'o O' and precision is 0 and
+**		i. value is not 0 or ii. length of string is 0 >>
+**		(0 will only be added when there is no 0 at the beginning)
+** c. return 2 if:
+**		i. spec is 'p'
+**		ii. spec is 'x x' and '#' flag is on and value is not 0
+** store the return value in ret[LEN_FLAG] of struct var
+*/
 
 int		ft_pfflag_len(t_var *var)
 {
@@ -75,6 +108,22 @@ int		ft_pfflag_len(t_var *var)
 	var->ret[LEN_FLAG] = ret;
 	return (ret);
 }
+
+/*
+** function of filling flag into string print after counting lenght
+** a. fill '+' if '+' flag is on and 1st char is number(+ve)
+** b. fill ' ' if ' ' flag is on and 1st char is number(+ve)
+** c. fill '0' if '#' flag is on and spec is 'o O' and precision is 0 and
+**		i. value is not 0 or ii. length of string is 0 >>
+**		(0 will only be added when there is no 0 at the beginning)
+** d. fill '0x' / '0X' (depends on case of spec) if:
+**		i. spec is 'p'
+**		ii. spec is 'x x' and '#' flag is on and value is not 0
+** e. fill '-' if spec is 'd i f e E f G'
+** run other filling function:
+**		a. ft_pfwidpre_widprocess or
+**		b. ft_pfwidpre_preprocess
+*/
 
 char	*ft_pfflag_process(char *print, t_var *var)
 {

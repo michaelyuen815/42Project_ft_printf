@@ -13,10 +13,18 @@
 #include "libft.h"
 #include "ft_printf.h"
 
+/*
+** static struct table of related data based on specifier
+** 1st data: specifiers
+** 2nd data: size of specifier
+** 3rd data: base (only apply for non 10 based)
+** 4th data: pointer function of converting varible to string
+*/
+
 t_spec	g_spec[] =
 {
 	{"sp", 8, 4, &ft_pffunc_ptr},
-	{"%Cc", 4, 0, &ft_pffunc_char},
+	{"%c", 4, 0, &ft_pffunc_char},
 	{"Ddi", 4, 0, &ft_pffunc_diu},
 	{"uU", 4, 0, &ft_pffunc_diu},
 	{"b", 4, 1, &ft_pffunc_box},
@@ -27,6 +35,11 @@ t_spec	g_spec[] =
 	{"gG", 8, 0, &ft_funcf_feg},
 	{"", 4, 0, &ft_pffunc_char}
 };
+
+/*
+** function of finding size and base based on spec before adjustment of length
+** and store result base and size under var
+*/
 
 int		ft_pfvar_size(t_var *var)
 {
@@ -40,6 +53,16 @@ int		ft_pfvar_size(t_var *var)
 	var->size = (int)g_spec[i].bitsize;
 	return (1);
 }
+
+/*
+** function of storing variable (var->input) from argument
+** a. if spec is %, store '%' in i(int)
+** b. if spec is 's p', store variable in v(void *)
+** c. if spec is 'c', store variable in i(int)
+** d. if spec is 'd i u b o O x X', store variable with size limited
+**		in ulli(unsigned long long int)
+** e. if spec is 'f e E g G', store variable in ld (long double)
+*/
 
 void	ft_pfvar_init(t_var *var, va_list lst_arg)
 {
@@ -58,6 +81,20 @@ void	ft_pfvar_init(t_var *var, va_list lst_arg)
 	else if (SPEC_DEC(var->i_spec) && var->size == 10)
 		var->input->ld = va_arg(lst_arg, t_ld);
 }
+
+/*
+** function of converting variable to string and counting length
+**		of filling into string print
+** step 1: convert variable to string based on pointer function in g_spec
+** step 2: if value in step 1 is 0 and spec is 'p d i u b o O x X' and
+**			precision is 0, skip printing string in step 1
+** step 3: count the length of converted string. If decide not to print in
+**			step 2, lenght = 0
+** step 4: count the precision with function "ft_pfwidpre_len"
+** step 5: count the flag with function "ft_pfflag_len"
+** step 6: count the required width by differing width and current length 
+**			if width is larger than current length
+*/
 
 int		ft_pfvar_cal(t_var *var)
 {
